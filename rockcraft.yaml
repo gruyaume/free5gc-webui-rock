@@ -1,0 +1,20 @@
+name: free5gc-webui
+summary: free5GC webui
+description: free5GC webui
+version: "1.1.1"
+license: Apache-2.0
+base: bare
+build-base: ubuntu:22.04
+platforms:
+  amd64:
+
+cmd: ["webui -c /free5gc/config/webuicfg.yaml"]
+
+parts:
+  free5gc-webui:
+    plugin: go
+    source: https://github.com/free5gc/webconsole
+    source-type: git
+    source-tag: v1.1.1
+    organize:
+      bin/cmd: bin/webui
