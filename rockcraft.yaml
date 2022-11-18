@@ -3,18 +3,34 @@ summary: free5GC webui
 description: free5GC webui
 version: "1.1.1"
 license: Apache-2.0
-base: bare
+base: ubuntu:22.04
 build-base: ubuntu:22.04
 platforms:
   amd64:
 
-cmd: ["webui -c /free5gc/config/webuicfg.yaml"]
+cmd: ["webconsole -c /free5gc/config/webuicfg.yaml"]
 
 parts:
+
   free5gc-webui:
-    plugin: go
+    plugin: dump
     source: https://github.com/free5gc/webconsole
     source-type: git
     source-tag: v1.1.1
-    organize:
-      bin/cmd: bin/webui
+    override-build: |
+      curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+      echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+      apt-get update
+      apt-get install -y nodejs yarn
+      
+      cd frontend
+      yarn install
+      yarn build
+      rm -rf ../public
+      cp -R build ../public
+      cd ..
+      go build
+
+      mkdir -p $CRAFT_PART_INSTALL/free5gc/webconsole/
+      mv public $CRAFT_PART_INSTALL/free5gc/webconsole/
+      mv webconsole $CRAFT_PART_INSTALL/free5gc/webconsole/
